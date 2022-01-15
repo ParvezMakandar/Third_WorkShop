@@ -1,41 +1,87 @@
 package ThirdWorkshop;
-import java.util.ArrayList;
-import java.util.Comparator;
 
-public class HotelReservation {
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Scanner;
+import java.util.function.Predicate;
+import java.time.DayOfWeek;
 
-    public ArrayList<Hotels> hotelDetails;
+public class HotelReservation
+{
+    static HotelDetails Lakewood = new HotelDetails();
+    static HotelDetails Bridgewood = new HotelDetails();
+    static HotelDetails Ridgewood = new HotelDetails();
+    static Scanner sc = new Scanner(System.in);
+    int totalForLakewood=0;
+    int totalForBridgewood=0;
+    int totalForRidgewood=0;
 
-    public HotelReservation() {
-        hotelDetails = new ArrayList<>();
+    public static void cheapHotelForInputDates()
+    {
+        System.out.println("Enter first day of hotel Reservation (YYYY-MM-DD) : ");
+        String startDateString = sc.nextLine();
+        System.out.println("Enter last day of hotel Reservation (YYYY-MM-DD) : ");
+        String endDateString = sc.nextLine();
+
+        LocalDate startDate = LocalDate.parse(startDateString);
+        LocalDate endtDate = LocalDate.parse(endDateString);
+
+        // Predicate : Is a given date is a weekday
+        Predicate<LocalDate> isWeekend = date -> date.getDayOfWeek() == DayOfWeek.SATURDAY
+                || date.getDayOfWeek() == DayOfWeek.SUNDAY;
+
+        // Iterate over stream of all dates and check each day against any weekday
+        List<LocalDate> businessDays = startDate.datesUntil(endtDate)
+                .filter(isWeekend.negate()).toList();
+        List<LocalDate> allDays = startDate.datesUntil(endtDate).toList();
+
+        int weekendDays = allDays.size() + 1 - businessDays.size();
+
+        int costofLakewood=totalValue(90,110,"Lakewood",weekendDays,businessDays.size());
+        int costofBridgewood=totalValue(60,160,"Bridgewood",weekendDays,businessDays.size());
+        int costofRidgewood=totalValue(150,220,"Ridgewood",weekendDays,businessDays.size());
+
+        if( costofLakewood<costofBridgewood && costofLakewood<costofRidgewood)
+        {
+            System.out.println("Cheapest Hotel is Lakewood with " + costofLakewood + "$");
+        }
+        else if( costofBridgewood<costofLakewood && costofBridgewood<costofRidgewood)
+        {
+            System.out.println("Cheapest Hotel is Bridgewood with " + costofBridgewood + "$");
+        }
+        else
+        {
+            System.out.println("Cheapest Hotel is Ridgewood with " + costofRidgewood + "$");
+        }
     }
 
-    public void addHotel(String hotelName, Integer hotelPrice) {
-        Hotels adder = new Hotels(hotelName, hotelPrice);
-        hotelDetails.add(adder);
+    public static int totalValue(int rateOnWeekend, int rateOnWeekdays ,String hotelName ,int daysOfWeekend, int daysOfWeek) {
+        int totalCost = (rateOnWeekend * daysOfWeekend) + (rateOnWeekdays * daysOfWeek);
+        System.out.println("total cost of reservation of " + hotelName + " hotel = " +  totalCost + " $");
+        return totalCost;
     }
 
-    public void getMinPriceHotel() {
-        Hotels min = hotelDetails.stream().min(Comparator.comparing(Hotels::getHotelPrice)).orElseThrow();
-        System.out.println(min);
+    public static void addHotel() {
+        Lakewood.setHotelName("Lakewood");
+        Lakewood.setHotelRatesForRegularCustomerOnWeekdays(110);
+        Lakewood.setHotelRatesForRegularCustomerOnWeekend(90);
+
+        Bridgewood.setHotelName("Bridgewood");
+        Bridgewood.setHotelRatesForRegularCustomerOnWeekdays(160);
+        Bridgewood.setHotelRatesForRegularCustomerOnWeekend(60);
+
+        Ridgewood.setHotelName("Ridgewood");
+        Ridgewood.setHotelRatesForRegularCustomerOnWeekdays(220);
+        Ridgewood.setHotelRatesForRegularCustomerOnWeekend(150);
+        System.out.println("---------------------------information about Hotels---------------------------"
+                + "\n___________________________________________________________________________");
+        System.out.println(Lakewood);
+        System.out.println(Bridgewood);
+        System.out.println(Ridgewood);
+        System.out.println("___________________________________________________________________________");
     }
 
-    public void getHotelDetails() {
-        String hotelName1 = "LakeWood";
-        String hotelName2 = "BridgeWood";
-        String hotelName3 = "RidgeWood";
-        int lackWoodPrice1 = 100;
-        int bridgeWoodPrice1 = 160;
-        int ridgeWoodPrice1 = 220;
-
-        addHotel(hotelName1, lackWoodPrice1);
-        addHotel(hotelName2, bridgeWoodPrice1);
-        addHotel(hotelName3, ridgeWoodPrice1);
+    public int NumberOfHotellist() {
+        return 3;
     }
-
-    public void viewHotels() {
-        getHotelDetails();
-        System.out.println(hotelDetails);
-    }
-
 }
